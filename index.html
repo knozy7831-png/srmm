@@ -114,6 +114,25 @@
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
+        .pw-wrap { position: relative; }
+        .pw-wrap input { padding-right: 42px; }
+        .pw-toggle {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            padding: 6px;
+            border-radius: 6px;
+        }
+        .pw-toggle:hover { color: var(--text-main); }
+        .pw-toggle i { width: 18px; height: 18px; }
+
         .btn {
             width: 100%;
             background: var(--primary);
@@ -163,7 +182,10 @@
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" id="l-pass" placeholder="••••••••">
+                <div class="pw-wrap">
+                    <input type="password" id="l-pass" placeholder="••••••••">
+                    <button type="button" class="pw-toggle" id="l-pass-toggle" aria-label="Show password"><i data-lucide="eye"></i></button>
+                </div>
             </div>
             <button class="btn" onclick="login()">Sign In <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i></button>
             <div id="l-error" class="error"></div>
@@ -177,6 +199,18 @@
         if (localStorage.getItem('token')) {
             window.location.href = '/xyz.html';
         }
+
+        // Show/hide password toggle
+        document.getElementById('l-pass-toggle').addEventListener('click', () => {
+            const inp = document.getElementById('l-pass');
+            const btn = document.getElementById('l-pass-toggle');
+            const reveal = inp.type === 'password';
+            inp.type = reveal ? 'text' : 'password';
+            btn.setAttribute('aria-label', reveal ? 'Hide password' : 'Show password');
+            btn.innerHTML = '<i data-lucide="' + (reveal ? 'eye-off' : 'eye') + '"></i>';
+            lucide.createIcons();
+            inp.focus();
+        });
 
         async function login() {
             const email = document.getElementById('l-email').value;
