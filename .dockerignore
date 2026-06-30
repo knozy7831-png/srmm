@@ -1,0 +1,12 @@
+node_modules
+.git
+.env
+.env.example
+.jwt_secret
+.vscode
+.gitignore
+*.db
+*.db-wal
+*.db-shm
+*.json.bak
+README.md

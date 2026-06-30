@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Cologic.ai</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-hover: #1D4ED8;
+            --bg: #F8FAFC;
+            --surface: #FFFFFF;
+            --text-main: #1E293B;
+            --text-light: #64748B;
+            --border: #E2E8F0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .auth-container {
+            background: var(--surface);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--border);
+        }
+
+        .logo-wrap {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-wrap h1 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        .logo-wrap p {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 24px;
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: var(--surface);
+            color: var(--text-main);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .error {
+            color: #DC2626;
+            font-size: 13px;
+            margin-top: 12px;
+            text-align: center;
+            display: none;
+        }
+
+        #register-form {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="logo-wrap">
+            <a href="https://ibb.co/7xZSXLLR"><img src="https://i.ibb.co/gbfr3hhP/Gemini-Generated-Image-2fw9ur2fw9ur2fw9.png" alt="Gemini-Generated-Image" border="0" style="height: 80px; margin-bottom: 12px; border-radius: 8px;"></a>
+            <p>Cologic Security Architect</p>
+        </div>
+
+        <div id="login-form">
+            <div class="form-group">
+                <label>Username / Email</label>
+                <input type="text" id="l-email" placeholder="you@company.com or username">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="l-pass" placeholder="••••••••">
+            </div>
+            <button class="btn" onclick="login()">Sign In <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i></button>
+            <div id="l-error" class="error"></div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Redirect if already logged in
+        if (localStorage.getItem('token')) {
+            window.location.href = '/xyz.html';
+        }
+
+        async function login() {
+            const email = document.getElementById('l-email').value;
+            const password = document.getElementById('l-pass').value;
+            const err = document.getElementById('l-error');
+            
+            if (!email || !password) {
+                err.textContent = "Please fill in all fields.";
+                err.style.display = "block";
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    window.location.href = '/xyz.html';
+                } else {
+                    err.textContent = data.error || "Login failed.";
+                    err.style.display = "block";
+                }
+            } catch (e) {
+                err.textContent = "Network error.";
+                err.style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>

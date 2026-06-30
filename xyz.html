@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cologic.ai · Cologic Security Architect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <link rel="stylesheet" href="style.css?v=4">
+</head>
+<body>
+
+    <script>
+        // Auth guard
+        if (!localStorage.getItem('token')) {
+            window.location.href = '/';
+        }
+    </script>
+
+    <div class="appbar">
+        <div class="appbar-left">
+            <div class="logo">
+                <a href="https://ibb.co/7xZSXLLR"><img src="https://i.ibb.co/gbfr3hhP/Gemini-Generated-Image-2fw9ur2fw9ur2fw9.png" alt="Gemini-Generated-Image" border="0" style="height: 48px; border-radius: 4px;"></a>
+            </div>
+            <div style="width: 1px; height: 24px; background: var(--border); margin: 0 8px;"></div>
+            <div>
+                <div class="appbar-title">
+                    Cologic Security Architect
+                    <span class="ai-badge">AI-ASSISTED</span>
+                </div>
+                <div class="appbar-sub">Upload a concept drawing, get a Design Report, HLD & Executive One-Pager</div>
+            </div>
+        </div>
+        <div class="appbar-right">
+            <button id="projectsBtn" style="background: none; border: 1px solid var(--border); padding: 8px 16px; border-radius: 6px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="folder-open" size="16"></i> My Projects
+            </button>
+            <button id="saveBtn" style="background: none; border: 1px solid var(--border); padding: 8px 16px; border-radius: 6px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="save" size="16"></i> Save Project
+            </button>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="text-align: right;">
+                    <div style="font-weight: 600; font-size: 14px;" id="u-name">User</div>
+                    <div style="font-size: 11px; color: var(--text-light);">Admin</div>
+                </div>
+                <div style="width: 36px; height: 36px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600;" id="u-initials">U</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        
+        <!-- LEFT COLUMN -->
+        <div class="main-column">
+            
+            <!-- 1. DRAWING -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="step-circle">1</div>
+                    <h2>Concept Drawing</h2>
+                </div>
+                <div class="drop" id="drop">
+                    <div class="drop-content">
+                        <i data-lucide="file-image" size="32" class="drop-icon"></i>
+                        <div>
+                            <div class="big" id="dropbig">Click or drop a drawing here</div>
+                            <div class="small">PDF, PNG or JPG · the concept plan / GA / schematic</div>
+                        </div>
+                    </div>
+                    <div id="thumbwrap"></div>
+                </div>
+                <input type="file" id="file" accept=".pdf,.png,.jpg,.jpeg" style="display:none">
+            </div>
+
+            <!-- 2. INPUTS -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="step-circle">2</div>
+                    <h2>Project Inputs</h2>
+                </div>
+                <div class="form-grid">
+                    <div><label>Project name</label><input type="text" id="f_project"></div>
+                    <div><label>Client / Operator</label><input type="text" id="f_client"></div>
+                    <div><label>Location / corridor</label><input type="text" id="f_location"></div>
+                    
+                    <div><label>Site type</label>
+                        <select id="f_type">
+                            <option>Rail cargo terminal (linear)</option>
+                            <option>Multimodal logistics park</option>
+                            <option>Warehouse / distribution centre</option>
+                            <option>Port / yard</option>
+                            <option>Industrial / plant</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div><label>Land area (hectares)</label><input type="number" id="f_area" step="0.01"></div>
+                    <div><label>Perimeter length (m)</label><input type="number" id="f_perim"></div>
+                    
+                    <div><label>No. of vehicle gates</label><input type="number" id="f_gates"></div>
+                    <div><label>No. of buildings</label><input type="number" id="f_bldg"></div>
+                    <div><label>Platform length (m)</label><input type="number" id="f_platform"></div>
+                    
+                    <div class="form-group full"><label>Key cargo / assets</label><input type="text" id="f_cargo"></div>
+                    <div class="form-group full"><label>Site constraints & notes</label>
+                        <textarea id="f_notes"></textarea>
+                    </div>
+                    
+                    <div><label>Currency</label><select id="f_ccy"><option>INR ₹</option></select></div>
+                    <div><label>Basis drawing ref</label><input type="text" id="f_basis"></div>
+                    <div><label>Document revision</label><input type="text" id="f_rev"></div>
+                </div>
+            </div>
+
+            <!-- 3. SOLUTION CONFIGURATION -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="step-circle">3</div>
+                    <h2>Solution Configuration</h2>
+                </div>
+                
+                <div class="form-grid">
+                    <div>
+                        <label>Budget Tier</label>
+                        <div class="seg" id="tierSeg">
+                            <button data-tier="Economy">Economy</button>
+                            <button data-tier="Standard" class="on">Standard</button>
+                            <button data-tier="Enterprise">Enterprise</button>
+                        </div>
+                    </div>
+                    <div><label>Camera make</label>
+                        <select id="c_brand"><option>Auto (spec-neutral)</option><option>CP Plus</option><option>Hikvision</option><option>Bosch</option></select>
+                    </div>
+                    <div><label>Coverage (DORI)</label>
+                        <select id="c_coverage"><option>Detection</option><option selected>Recognition</option><option>Identification</option></select>
+                    </div>
+
+                    <div><label>Retention (General)</label><input type="number" id="c_retgen"></div>
+                    <div><label>Retention (Gate/ANPR)</label><input type="number" id="c_retgate"></div>
+                    <div><label>Redundancy</label>
+                        <select id="c_redund"><option>Basic</option><option selected>Standard (Hot-standby)</option><option>High (N+1)</option></select>
+                    </div>
+
+                    <div><label>Scalability</label>
+                        <select id="c_expand"><option>None</option><option selected>+20%</option></select>
+                    </div>
+                    <div><label>Operational Model</label>
+                        <select id="c_ops"><option>8x5 monitored</option><option selected>24x7 SOC</option></select>
+                    </div>
+                    <div><label>Preferred model series</label><input type="text" id="c_model"></div>
+                </div>
+
+                <div style="margin-top:24px"><label>Analytics Requirements</label>
+                    <div class="chip-group" id="analyticsRow">
+                        <label class="chk on"><input type="checkbox" value="ANPR" checked><i data-lucide="car"></i> ANPR</label>
+                        <label class="chk on"><input type="checkbox" value="Intrusion detection" checked><i data-lucide="shield-alert"></i> Intrusion</label>
+                        <label class="chk"><input type="checkbox" value="Loitering"><i data-lucide="footprints"></i> Loitering</label>
+                        <label class="chk"><input type="checkbox" value="Face recognition"><i data-lucide="scan-face"></i> Face Recog.</label>
+                        <label class="chk"><input type="checkbox" value="Object left-behind"><i data-lucide="package"></i> Object Left</label>
+                        <label class="chk"><input type="checkbox" value="People counting"><i data-lucide="users"></i> People Count</label>
+                    </div>
+                </div>
+
+                <div style="margin-top:24px"><label>Compliance Requirements</label>
+                    <div class="chip-group" id="complianceRow">
+                        <label class="chk on"><input type="checkbox" value="IEC 62676 (CCTV)" checked><i data-lucide="file-check"></i> IEC 62676</label>
+                        <label class="chk on"><input type="checkbox" value="EN 54-16 (PAVA)" checked><i data-lucide="speaker"></i> EN 54-16</label>
+                        <label class="chk on"><input type="checkbox" value="DPDP Act 2023" checked><i data-lucide="lock"></i> DPDP Act</label>
+                        <label class="chk"><input type="checkbox" value="ISO 27001"><i data-lucide="shield-check"></i> ISO 27001</label>
+                        <label class="chk"><input type="checkbox" value="Railway / OHE clearance"><i data-lucide="train"></i> Railway OHE</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="results" style="display:none">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="step-circle" style="background:var(--success)">✓</div>
+                        <h2>Generated Output</h2>
+                    </div>
+                    <div class="tabs" id="tabs"></div>
+                    <div id="panes"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="side-column">
+            
+            <!-- Project Overview -->
+            <div class="card">
+                <h2 style="margin-bottom: 16px;">Project Overview</h2>
+                <div style="background: #E2E8F0; height: 120px; border-radius: 8px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; color: var(--text-light);">
+                    <i data-lucide="map" size="32"></i>
+                </div>
+                <ul class="overview-list">
+                    <li><div class="overview-label"><i data-lucide="map-pin" size="14"></i> Site Type</div> <div class="overview-val" id="ov-type">-</div></li>
+                    <li><div class="overview-label"><i data-lucide="scaling" size="14"></i> Land Area</div> <div class="overview-val" id="ov-area">-</div></li>
+                    <li><div class="overview-label"><i data-lucide="ruler" size="14"></i> Perimeter</div> <div class="overview-val" id="ov-perim">-</div></li>
+                    <li><div class="overview-label"><i data-lucide="building" size="14"></i> Buildings</div> <div class="overview-val" id="ov-bldg">-</div></li>
+                    <li><div class="overview-label"><i data-lucide="car" size="14"></i> Gates</div> <div class="overview-val" id="ov-gates">-</div></li>
+                </ul>
+            </div>
+
+            <!-- Estimated Summary -->
+            <div class="card">
+                <h2 style="margin-bottom: 16px;">Estimated Summary</h2>
+                <div class="summary-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon" style="background: #E0E7FF; color: #4338CA;"><i data-lucide="video"></i></div>
+                        <div>
+                            <div class="metric-lbl">Cameras</div>
+                            <div class="metric-val" id="ov-cams">0</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon" style="background: #E0F2FE; color: #0284C7;"><i data-lucide="database"></i></div>
+                        <div>
+                            <div class="metric-lbl">Storage</div>
+                            <div class="metric-val" id="ov-storage">0 TB</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon" style="background: #FFEDD5; color: #C2410C;"><i data-lucide="indian-rupee"></i></div>
+                        <div>
+                            <div class="metric-lbl">CAPEX</div>
+                            <div class="metric-val" id="ov-capex" style="font-size: 16px;">₹ 0</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon" style="background: #F3E8FF; color: #7E22CE;"><i data-lucide="activity"></i></div>
+                        <div>
+                            <div class="metric-lbl">OPEX / Yr</div>
+                            <div class="metric-val" id="ov-opex" style="font-size: 16px;">₹ 0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documents to Generate -->
+            <div class="card">
+                <h2 style="margin-bottom: 16px;">Documents to Generate</h2>
+                <div class="doc-cards">
+                    <label class="doc-card active">
+                        <input type="checkbox" id="d_one" checked>
+                        <div class="doc-card-icon"><i data-lucide="layout-template"></i></div>
+                        <div>
+                            <div class="doc-card-title">One-Pager</div>
+                            <div class="doc-card-desc">Visual Brief</div>
+                        </div>
+                    </label>
+                    <label class="doc-card active">
+                        <input type="checkbox" id="d_rep" checked>
+                        <div class="doc-card-icon"><i data-lucide="file-text"></i></div>
+                        <div>
+                            <div class="doc-card-title">Design Report</div>
+                            <div class="doc-card-desc">Full Sectional</div>
+                        </div>
+                    </label>
+                    <label class="doc-card">
+                        <input type="checkbox" id="d_hld">
+                        <div class="doc-card-icon"><i data-lucide="network"></i></div>
+                        <div>
+                            <div class="doc-card-title">HLD Report</div>
+                            <div class="doc-card-desc">Architecture</div>
+                        </div>
+                    </label>
+                    <label class="doc-card active">
+                        <input type="checkbox" id="d_doc4" checked>
+                        <div class="doc-card-icon"><i data-lucide="shield-half"></i></div>
+                        <div>
+                            <div class="doc-card-title">Manpower</div>
+                            <div class="doc-card-desc">Deployment</div>
+                        </div>
+                    </label>
+                </div>
+                
+                <button class="btn-go" id="go">
+                    Analyse & Generate
+                </button>
+                
+                <div class="prog-wrap" id="progwrap" style="display:none">
+                    <div class="bar"><i id="barfill"></i></div>
+                    <div class="steps" id="steps"></div>
+                </div>
+                <div id="errbox" style="color:var(--red); font-size: 13px; margin-top: 10px;"></div>
+            </div>
+
+            <div style="text-align: center; margin-top: 24px; font-size: 12px; color: var(--text-light); font-weight: 500;">
+                <i data-lucide="zap" size="12" style="display:inline-block; vertical-align:middle; color:#F59E0B;"></i> Powered by Cologic.ai
+            </div>
+        </div>
+
+    </div>
+
+    <!-- My Projects modal -->
+    <div id="projModal" class="modal" style="display:none">
+        <div class="modal-card">
+            <div class="modal-head">
+                <h2 style="margin:0">My Projects</h2>
+                <button id="projClose" class="btn-sm ghost" style="padding:4px 10px">Close</button>
+            </div>
+            <div id="projList" class="proj-list"></div>
+        </div>
+    </div>
+
+<script>
+    // Load prompts from authenticated API endpoint (protects proprietary IP)
+    (async function loadPrompts() {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) { window.location.href = '/'; return; }
+            const res = await fetch('/api/prompts', { headers: { 'Authorization': 'Bearer ' + token } });
+            if (!res.ok) throw new Error('Failed to load prompts');
+            const js = await res.text();
+            const s = document.createElement('script'); s.textContent = js;
+            document.head.appendChild(s);
+            // Now load app.js
+            const a = document.createElement('script'); a.src = 'app.js?v=9';
+            document.body.appendChild(a);
+        } catch(e) { console.error('Prompt load failed:', e); }
+    })();
+    </script>
+</body>
+
+</html>

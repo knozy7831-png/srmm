@@ -1,0 +1,18 @@
+node_modules/
+.env
+cologic.zip
+test.js
+.DS_Store
+
+# JWT signing secret (dev)
+.jwt_secret
+
+# SQLite database (contains user accounts + project data)
+cologic.db
+cologic.db-journal
+cologic.db-wal
+cologic.db-shm
+
+# Seed/data files with credentials or user data — kept out of VCS
+users.json
+projects.json
