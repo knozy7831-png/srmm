@@ -48,6 +48,30 @@ if (!ACTIVE_JWT_SECRET) {
 // Cost factor for password hashing.
 const BCRYPT_ROUNDS = 10;
 
+// Ensure a default admin account exists on startup. This is essential on
+// ephemeral hosts (e.g. Railway) where the SQLite file is wiped on every
+// redeploy and the seed `users.json` is not deployed — without this the
+// database would be empty and every login would fail. Credentials are taken
+// from ADMIN_USERNAME/ADMIN_PASSWORD if set, otherwise a sensible default.
+function ensureAdminAccount() {
+    const email = process.env.ADMIN_USERNAME || 'cologic';
+    const password = process.env.ADMIN_PASSWORD || 'cologic@2026';
+    try {
+        if (!db.getUserByEmail(email)) {
+            db.createUser({
+                id: Date.now().toString(),
+                email,
+                password: bcrypt.hashSync(password, BCRYPT_ROUNDS),
+                name: 'Cologic Admin'
+            });
+            console.log(`Seeded admin account: ${email}`);
+        }
+    } catch (e) {
+        console.warn('Admin seed skipped:', e.message);
+    }
+}
+ensureAdminAccount();
+
 // Middleware
 // Helmet sets security-related HTTP headers. The Content-Security-Policy is
 // disabled because the front-end relies on inline styles/scripts and CDN
