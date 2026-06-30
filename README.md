@@ -35,3 +35,23 @@ or via the `ADMIN_*` env variables.
 - Run behind a TLS-terminating reverse proxy (the app trusts one proxy hop in prod).
 - Back up `cologic.db` regularly.
 - Health check: `GET /api/health`.
+
+## Deploying on Railway
+Set these under **Service → Variables** (the `.env` file is gitignored and is NOT deployed):
+
+| Variable | Value |
+|----------|-------|
+| `JWT_SECRET` | a long random string (e.g. `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`) |
+| `ANTHROPIC_API_KEY` | your Anthropic key |
+| `NODE_ENV` | `production` |
+| `ADMIN_USERNAME` | login id (e.g. `cologic`) |
+| `ADMIN_PASSWORD` | a strong password |
+
+**Important — persistent storage:** Railway's container filesystem is ephemeral, so
+`cologic.db` (users + saved projects) is wiped on every redeploy. To keep data:
+1. Add a **Volume** to the service (e.g. mounted at `/data`).
+2. Set `DB_PATH=/data/cologic.db` in Variables.
+
+Without a volume, log in using the `ADMIN_USERNAME`/`ADMIN_PASSWORD` env account
+(which doesn't depend on the database). `npm start` is the start command; the app
+binds to Railway's injected `PORT` automatically.
